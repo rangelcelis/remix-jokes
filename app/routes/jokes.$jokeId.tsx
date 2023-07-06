@@ -78,19 +78,15 @@ export function ErrorBoundary() {
 
   if (isRouteErrorResponse(error)) {
     if (error.status === 400) {
-      return <div className="error-container">What you're trying to do is not allowed.</div>;
+      return <div>What you're trying to do is not allowed.</div>;
     }
     if (error.status === 403) {
-      return <div className="error-container">Sorry, but "{jokeId}" is not your joke.</div>;
+      return <div>Sorry, but "{jokeId}" is not your joke.</div>;
     }
     if (error.status === 404) {
-      return <div className="error-container">Huh? What the heck is "{jokeId}"?</div>;
+      return <div>Huh? What the heck is "{jokeId}"?</div>;
     }
   }
 
-  return (
-    <div className="error-container">
-      There was an error loading joke by the id "${jokeId}". Sorry.
-    </div>
-  );
+  return <div>There was an error loading joke by the id "${jokeId}". Sorry.</div>;
 }

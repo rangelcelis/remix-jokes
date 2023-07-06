@@ -1,12 +1,9 @@
-import type { ActionArgs, LinksFunction, V2_MetaFunction } from '@remix-run/node';
+import type { ActionArgs, V2_MetaFunction } from '@remix-run/node';
 import { Form, Link, useActionData, useSearchParams } from '@remix-run/react';
 
-import stylesUrl from '~/styles/login.css';
 import { db } from '~/utils/db.server';
 import { badRequest } from '~/utils/request.server';
 import { createUserSession, login, register } from '~/utils/session.server';
-
-export const links: LinksFunction = () => [{ rel: 'stylesheet', href: stylesUrl }];
 
 export const meta: V2_MetaFunction = () => {
   const description = 'Login to submit your own jokes to Remix Jokes!';
@@ -117,8 +114,8 @@ export default function Login() {
   const actionData = useActionData<typeof action>();
   const [searchParams] = useSearchParams();
   return (
-    <div className="container">
-      <div className="content" data-light="">
+    <div>
+      <div data-light="">
         <h1>Login</h1>
         <Form method="post">
           <input
@@ -127,7 +124,7 @@ export default function Login() {
             value={searchParams.get('redirectTo') ?? undefined}
           />
           <fieldset>
-            <legend className="sr-only">Login or Register?</legend>
+            <legend>Login or Register?</legend>
             <label>
               <input
                 type="radio"
@@ -160,7 +157,7 @@ export default function Login() {
               aria-errormessage={actionData?.fieldErrors?.username ? 'username-error' : undefined}
             />
             {actionData?.fieldErrors?.username ? (
-              <p className="form-validation-error" role="alert" id="username-error">
+              <p role="alert" id="username-error">
                 {actionData.fieldErrors.username}
               </p>
             ) : null}
@@ -176,24 +173,18 @@ export default function Login() {
               aria-errormessage={actionData?.fieldErrors?.password ? 'password-error' : undefined}
             />
             {actionData?.fieldErrors?.password ? (
-              <p className="form-validation-error" role="alert" id="password-error">
+              <p role="alert" id="password-error">
                 {actionData.fieldErrors.password}
               </p>
             ) : null}
           </div>
           <div id="form-error-message">
-            {actionData?.formError ? (
-              <p className="form-validation-error" role="alert">
-                {actionData.formError}
-              </p>
-            ) : null}
+            {actionData?.formError ? <p role="alert">{actionData.formError}</p> : null}
           </div>
-          <button type="submit" className="button">
-            Submit
-          </button>
+          <button type="submit">Submit</button>
         </Form>
       </div>
-      <div className="links">
+      <div>
         <ul>
           <li>
             <Link to="/">Home</Link>

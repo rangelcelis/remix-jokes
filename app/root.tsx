@@ -1,3 +1,4 @@
+import { PropsWithChildren, useContext, useEffect } from 'react';
 import type { LinksFunction, V2_MetaFunction } from '@remix-run/node';
 import {
   isRouteErrorResponse,
@@ -6,25 +7,19 @@ import {
   Meta,
   Outlet,
   Scripts,
+  ScrollRestoration,
   useRouteError,
 } from '@remix-run/react';
-import type { PropsWithChildren } from 'react';
-
-import globalLargeStylesUrl from '~/styles/global-large.css';
-import globalMediumStylesUrl from '~/styles/global-medium.css';
-import globalStylesUrl from '~/styles/global.css';
+import { withEmotionCache } from '@emotion/react';
+import { ChakraProvider } from '@chakra-ui/react';
+import { ClientStyleContext, ServerStyleContext } from './context';
 
 export const links: LinksFunction = () => [
-  { rel: 'stylesheet', href: globalStylesUrl },
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  { rel: 'preconnect', href: 'https://fonts.gstatic.com' },
   {
     rel: 'stylesheet',
-    href: globalMediumStylesUrl,
-    media: 'print, (min-width: 640px)',
-  },
-  {
-    rel: 'stylesheet',
-    href: globalLargeStylesUrl,
-    media: 'screen and (min-width: 1024px)',
+    href: 'https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap',
   },
 ];
 
@@ -38,35 +33,56 @@ export const meta: V2_MetaFunction = () => {
   ];
 };
 
-function Document({ children, title }: PropsWithChildren<{ title?: string }>) {
-  return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <meta name="keywords" content="Remix,jokes" />
-        <meta name="twitter:image" content="https://remix-jokes.lol/social.png" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:creator" content="@remix_run" />
-        <meta name="twitter:site" content="@remix_run" />
-        <meta name="twitter:title" content="Remix Jokes" />
-        <Meta />
-        {title ? <title>{title}</title> : null}
-        <Links />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-        <LiveReload />
-      </body>
-    </html>
-  );
-}
+const Document = withEmotionCache(
+  ({ children, title }: PropsWithChildren<{ title?: string }>, emotionCache) => {
+    const serverStyleData = useContext(ServerStyleContext);
+    const clientStyleData = useContext(ClientStyleContext);
+
+    // Only executed on client
+    useEffect(() => {
+      // re-link sheet container
+      emotionCache.sheet.container = document.head;
+      // re-inject tags
+      const tags = emotionCache.sheet.tags;
+      emotionCache.sheet.flush();
+      tags.forEach((tag) => {
+        (emotionCache.sheet as any)._insertTag(tag);
+      });
+      // reset cache to reapply global styles
+      clientStyleData?.reset();
+    }, []);
+
+    return (
+      <html lang="en">
+        <head>
+          <Meta />
+          <Links />
+          {serverStyleData?.map(({ key, ids, css }) => (
+            <style
+              key={key}
+              data-emotion={`${key} ${ids.join(' ')}`}
+              dangerouslySetInnerHTML={{ __html: css }}
+            />
+          ))}
+          {title ? <title>{title}</title> : null}
+        </head>
+        <body>
+          {children}
+          <ScrollRestoration />
+          <Scripts />
+          <LiveReload />
+        </body>
+      </html>
+    );
+  }
+);
 
 export default function App() {
   return (
     <Document>
-      <Outlet />
+      <ChakraProvider>
+        <Outlet />
+      </ChakraProvider>
     </Document>
   );
 }
@@ -78,7 +94,7 @@ export function ErrorBoundary() {
   if (isRouteErrorResponse(error)) {
     return (
       <Document title={`${error.status} ${error.statusText}`}>
-        <div className="error-container">
+        <div>
           <h1>
             {error.status} {error.statusText}
           </h1>
@@ -90,7 +106,7 @@ export function ErrorBoundary() {
   const errorMessage = error instanceof Error ? error.message : 'Unknown error';
   return (
     <Document title="Uh-oh!">
-      <div className="error-container">
+      <div>
         <h1>App Error</h1>
         <pre>{errorMessage}</pre>
       </div>

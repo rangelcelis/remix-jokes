@@ -17,13 +17,7 @@ export function JokeDisplay({
       <Link to=".">"{joke.name}" Permalink</Link>
       {isOwner ? (
         <Form method="post">
-          <button
-            className="button"
-            disabled={!canDelete}
-            name="intent"
-            type="submit"
-            value="delete"
-          >
+          <button disabled={!canDelete} name="intent" type="submit" value="delete">
             Delete
           </button>
         </Form>

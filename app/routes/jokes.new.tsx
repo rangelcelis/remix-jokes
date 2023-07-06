@@ -99,7 +99,7 @@ export default function NewJokeRoute() {
             />
           </label>
           {actionData?.fieldErrors?.name ? (
-            <p className="form-validation-error" id="name-error" role="alert">
+            <p id="name-error" role="alert">
               {actionData.fieldErrors.name}
             </p>
           ) : null}
@@ -115,20 +115,14 @@ export default function NewJokeRoute() {
             />
           </label>
           {actionData?.fieldErrors?.content ? (
-            <p className="form-validation-error" id="content-error" role="alert">
+            <p id="content-error" role="alert">
               {actionData.fieldErrors.content}
             </p>
           ) : null}
         </div>
         <div>
-          {actionData?.formError ? (
-            <p className="form-validation-error" role="alert">
-              {actionData.formError}
-            </p>
-          ) : null}
-          <button type="submit" className="button">
-            Add
-          </button>
+          {actionData?.formError ? <p role="alert">{actionData.formError}</p> : null}
+          <button type="submit">Add</button>
         </div>
       </Form>
     </div>
@@ -141,12 +135,12 @@ export function ErrorBoundary() {
 
   if (isRouteErrorResponse(error) && error.status === 401) {
     return (
-      <div className="error-container">
+      <div>
         <p>You must be logged in to create a joke.</p>
         <Link to="/login">Login</Link>
       </div>
     );
   }
 
-  return <div className="error-container">Something unexpected went wrong. Sorry about that.</div>;
+  return <div>Something unexpected went wrong. Sorry about that.</div>;
 }

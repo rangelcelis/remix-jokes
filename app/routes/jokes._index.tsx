@@ -36,12 +36,12 @@ export function ErrorBoundary() {
 
   if (isRouteErrorResponse(error) && error.status === 404) {
     return (
-      <div className="error-container">
+      <div>
         <p>There are no jokes to display.</p>
         <Link to="new">Add your own</Link>
       </div>
     );
   }
 
-  return <div className="error-container">I did a whoopsies.</div>;
+  return <div>I did a whoopsies.</div>;
 }
